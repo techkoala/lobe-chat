@@ -1,4 +1,5 @@
 import { merge } from 'lodash-es';
+import { AppRouterInstance } from 'next/dist/shared/lib/app-router-context';
 
 import { DEFAULT_AGENT_META, DEFAULT_INBOX_AVATAR } from '@/const/meta';
 import { LobeAgentConfig, LobeAgentSession, LobeSessionType } from '@/types/session';
@@ -14,6 +15,7 @@ export interface SessionState {
   // 默认会话
   inbox: LobeAgentSession;
   isMobile?: boolean;
+  router: AppRouterInstance;
   searchKeywords: string;
   sessions: Record<string, LobeAgentSession>;
   topicSearchKeywords: string;
@@ -43,6 +45,7 @@ export const initialSessionState: SessionState = {
   activeId: undefined,
   inbox: initInbox,
   isMobile: false,
+  router: {} as AppRouterInstance,
   searchKeywords: '',
   sessions: {},
   topicSearchKeywords: '',
