@@ -65,7 +65,7 @@ export default memo(({ children }: PropsWithChildren) => {
   );
 
   return (
-    <ThemeProvider customToken={genCustomToken || {}} themeMode={themeMode}>
+    <ThemeProvider customToken={genCustomToken || {}} themeMode={'light'}>
       <GlobalStyle />
       <Layout>{children}</Layout>
     </ThemeProvider>
