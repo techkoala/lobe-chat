@@ -13,7 +13,7 @@ const withPWA = nextPWA({
 const nextConfig = {
   reactStrictMode: true,
   pageExtensions: ['page.tsx', 'api.ts'],
-  transpilePackages: ['@lobehub/ui','ahooks'],
+  transpilePackages: ['@lobehub/ui'],
   webpack(config) {
     config.experiments = {
       asyncWebAssembly: true,
