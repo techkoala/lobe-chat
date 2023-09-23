@@ -2,12 +2,12 @@
 
 import { ThemeProvider, lobeCustomTheme } from '@lobehub/ui';
 import { App, ConfigProvider } from 'antd';
-import { useThemeMode } from 'antd-style';
+import { ThemeAppearance, useThemeMode } from 'antd-style';
 import 'antd/dist/reset.css';
 import Zh_CN from 'antd/locale/zh_CN';
 import { changeLanguage } from 'i18next';
 import { useRouter } from 'next/navigation';
-import { PropsWithChildren, memo, useCallback, useEffect } from 'react';
+import { PropsWithChildren, ReactNode, memo, useCallback, useEffect } from 'react';
 
 import { createI18nNext } from '@/locales/create';
 import { useGlobalStore, useOnFinishHydrationGlobal } from '@/store/global';
@@ -23,6 +23,14 @@ const Layout = memo<PropsWithChildren>(({ children }) => {
   const { styles } = useStyles();
 
   const router = useRouter();
+
+  useEffect(() => {
+    // refs: https://github.com/pmndrs/zustand/blob/main/docs/integrations/persisting-store-data.md#hashydrated
+    useSessionStore.persist.rehydrate();
+    useGlobalStore.persist.rehydrate();
+    usePluginStore.persist.rehydrate();
+  }, []);
+
   useOnFinishHydrationGlobal((state) => {
     i18n.then(() => {
       changeLanguage(state.settings.language);
@@ -43,14 +51,12 @@ const Layout = memo<PropsWithChildren>(({ children }) => {
   );
 });
 
-export default memo<PropsWithChildren>(({ children }) => {
-  useEffect(() => {
-    // refs: https://github.com/pmndrs/zustand/blob/main/docs/integrations/persisting-store-data.md#hashydrated
-    useSessionStore.persist.rehydrate();
-    useGlobalStore.persist.rehydrate();
-    usePluginStore.persist.rehydrate();
-  }, []);
+interface ThemeWrapperProps {
+  appearance?: ThemeAppearance;
+  children?: ReactNode;
+}
 
+const ThemeWrapper = memo<ThemeWrapperProps>(({ children, appearance }) => {
   const themeMode = useGlobalStore((s) => s.settings.themeMode);
   const [primaryColor, neutralColor] = useGlobalStore((s) => [
     s.settings.primaryColor,
@@ -59,15 +65,21 @@ export default memo<PropsWithChildren>(({ children }) => {
   const { browserPrefers } = useThemeMode();
   const isDarkMode = themeMode === 'auto' ? browserPrefers === 'dark' : themeMode === 'dark';
 
+  console.log('appearance', appearance);
   const genCustomToken: any = useCallback(
     () => lobeCustomTheme({ isDarkMode, neutralColor, primaryColor }),
     [primaryColor, neutralColor, isDarkMode],
   );
+  useEffect(() => {
+    document.cookie = `theme=${browserPrefers};path=/;`;
+  }, []);
 
   return (
-    <ThemeProvider customToken={genCustomToken || {}} themeMode={themeMode}>
+    <ThemeProvider customToken={genCustomToken || {}} themeMode={appearance ?? themeMode}>
       <GlobalStyle />
       <Layout>{children}</Layout>
     </ThemeProvider>
   );
 });
+
+export default ThemeWrapper;

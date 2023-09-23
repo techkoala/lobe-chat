@@ -76,6 +76,8 @@ export const createSettingsSlice: StateCreator<
   },
 
   switchThemeMode: (themeMode) => {
+    document.cookie = `theme=${themeMode};path=/;`;
+
     get().setSettings({ themeMode });
   },
 });
